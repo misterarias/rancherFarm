@@ -1,0 +1,40 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  deploy_prefix = 'rancher-node-'
+  machines = {
+    :worker1 => {
+      :name => "worker1",
+      :vbox_ip =>"192.168.33.100"
+    }
+  }
+
+  machines.each do |machine_name, machine_params|
+
+    config.vm.define machine_name do |host|
+
+      # Dummy AWS box, add with: vagrant box add dummy https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+      host.vm.box = "dummy"
+      host.vm.synced_folder ".", "/vagrant", disabled:true
+
+      host.vm.provider :virtualbox do |vb, override|
+        vb.cpus = 1
+        vb.memory = 1*1024
+        vb.name = machine_params[:name]
+
+        override.vm.box = "centos/7"
+        override.vm.network "private_network", ip: machine_params[:vbox_ip]
+        if machine_params[:vbox_guest_port] then
+          override.vm.network "forwarded_port",
+            guest: machine_params[:vbox_guest_port],
+            host: machine_params[:vbox_host_port]
+        end
+      end
+
+      host.vm.provision "file", source: "./bootstrap.sh", destination: "/tmp/bootstrap.sh"
+      host.vm.provision "shell", privileged: true, inline: "bash /tmp/bootstrap.sh"
+    end
+  end
+end
