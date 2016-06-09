@@ -13,6 +13,10 @@ EOF
 yum update -y 
 yum install -y ntpdate wget curl vim docker-engine
 
+# This makes vagrant-ssh faster
+sed -i.bk -e 's#.*UseDNS.*#UseDNS no#g' /etc/ssh/sshd_config 
+sed -i.bk -e 's#.*GSSAPIAuthentication.*#GSSAPIAuthentication no#g' /etc/ssh/sshd_config 
+
 # Config ntpd
 ntpdate -u time.nist.gov
 rm -rf /etc/localtime  && ln -s /usr/share/zoneinfo/Europe/Madrid /etc/localtime

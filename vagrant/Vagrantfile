@@ -26,10 +26,10 @@ Vagrant.configure(2) do |config|
       host.vm.provider :virtualbox do |vb, override|
         vb.cpus = 1
         vb.memory = 1*1024
-
+        vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
         vb.name = "#{deploy_prefix}-#{machine_params[:name]}"
-        override.vm.hostname = "#{deploy_prefix}-#{machine_params[:name]}"
 
+        override.vm.hostname = "#{deploy_prefix}-#{machine_params[:name]}"
         override.vm.box = "centos/7"
         override.vm.network "private_network", ip: machine_params[:vbox_ip]
         if machine_params[:vbox_guest_port] then
